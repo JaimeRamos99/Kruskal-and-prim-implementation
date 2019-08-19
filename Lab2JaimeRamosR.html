@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <meta charset="utf-8"/>
+  <title>kruskal y prim</title>
+  <style type="text/css">
+  canvas { border: 2px solid black; }
+  p {
+  font-weight: bold;
+  font-style: italic;
+}
+  #ul{
+      list-style: none;
+      list-style-type: none;
+      list-style-position: outside;
+}
+ 
+#li{
+      line-height: 30px;
+      font-size: 16px;
+      cursor:pointer;
+}
+ 
+#menu{
+      width:250px;
+      position:absolute;      
+      border:1px solid black;
+	  background:#AAA;
+}
+
+  #uno{
+	float:left; 
+	padding-top:0px;
+	padding-right:20px;
+  }
+  #dos{
+	float:right; 
+	padding-top:0px;
+	padding-right:20px;
+  }
+  #tres{
+	float:right; 
+	padding-top:0px;
+	padding-right:20px;
+  }
+  #mover2{
+    text-decoration: none;
+    padding: 10px;
+    font-weight: 600;
+    font-size: 15px;
+    color: #ffffff;
+    background-color: #1883ba;
+    border-radius: 6px;
+    border: 2px solid #0016b0;
+  }
+  #kruskall{
+    text-decoration: none;
+    padding: 10px;
+    font-weight: 600;
+    font-size: 15px;
+    color: #ffffff;
+    background-color: #1883ba;
+    border-radius: 6px;
+    border: 2px solid #0016b0;
+  }
+  #prim{
+    text-decoration: none;
+    padding: 10px;
+    font-weight: 600;
+    font-size: 15px;
+    color: #ffffff;
+    background-color: #1883ba;
+    border-radius: 6px;
+    border: 2px solid #0016b0;
+  }
+  #clean{
+    text-decoration: none;
+    padding: 10px;
+    font-weight: 600;
+    font-size: 15px;
+    color: #ffffff;
+    background-color: #1883ba;
+    border-radius: 6px;
+    border: 2px solid #0016b0;
+  }
+   #re{
+    text-decoration: none;
+    padding: 10px;
+    font-weight: 600;
+    font-size: 15px;
+    color: #ffffff;
+    background-color: #1883ba;
+    border-radius: 6px;
+    border: 2px solid #0016b0;
+  }
+  </style>
+ </head>
+ <body onload=window.onload();>
+       <canvas id="proyecto" width="1000" height="500"></canvas>
+	   <div id="menu">
+         <ul>
+            <li id="rnodo">eliminar estación</li>
+            <li id="rpath">Eliminar camino</li>
+            <li id="apath">Agregar camino</li>
+         </ul>
+      </div>
+	   <div id="dos">
+	     <p>Comentarios:</p>
+	     <textarea readonly id="mytextarea" rows="30" cols="40">1-Haz click derecho para ver el menú contextual.
+		                                                        2-Recuerda que puedes cerrar el menú contextual oprimiendo esc.              
+		                                                        3-Puedes agregar vertices tecleando "A".
+																4-Puedes eliminar una arista clickeando "c".
+																
+		 </textarea>
+	   </div>
+	  <p>  <p/>
+	  <div id="tres">
+		<button id="clean">Limpiar</button>
+	  </div>
+	  <div id="uno">
+		<button id="mover2">Agregar estación</button>
+		<button id="kruskall">Kruskal</button>
+		<button id="prim">Prim</button>
+		<button id="re">Reestablecer</button>
+	  </div>
+	  <script type="text/javascript" src="http://code.jquery.com/jquery-3.3.1.min.js""></script> 
+	  <script type="text/javascript">
+        window.onload=function(){//debo completar el metodo de eliminar una estación.
+	       var canvas = document.getElementById('proyecto');
+           if (canvas.getContext) {
+             var ctx = canvas.getContext('2d');
+            }
+			$(document).ready(function(){
+		    var suiche=false;//el suiche es true cuando se va a eliminar
+            //Ocultamos el menú al cargar la página
+            $("#menu").hide();
+            /* mostramos el menú si hacemos click derecho
+            con el ratón */
+            $(document).bind("contextmenu", function(e){
+                  $("#menu").css({'display':'block', 'left':e.pageX, 'top':e.pageY});
+                  return false;
+            });
+            //cuando hagamos click, el menú desaparecerá
+            $(document).click(function(e){
+                  if(e.button == 0){
+                        $("#menu").css("display", "none");
+                  }
+            });
+             
+            //si pulsamos escape, el menú desaparecerá
+            $(document).keydown(function(e){
+                  if(e.keyCode == 27){
+                        $("#menu").css("display", "none");
+                  }
+            });
+			//si pulsamos a se puede agregar un nodo
+             $(document).keydown(function(e){
+                  if(e.keyCode == 65){
+                      alert("mueve el mouse hacia el mapa y clickea donde quieres agregar la nueva estación");
+			          agg=true;
+                  }
+            });
+			$(document).keydown(function(e){
+				 if(e.keyCode == 67){
+                  if(vertices.length>1&&unarista===1){
+				        alert("presiona las dos estaciones involucradas");
+				        rar=true;
+				     }else{
+					   alert("No hay aristas, agrega una presionando 'C' ");
+				     }
+				 }
+            });
+            //controla los botones del menú
+            $("#menu").click(function(e){
+                  // El switch utiliza los IDs de los <li> del menú
+                  switch(e.target.id){
+                        case "rnodo":
+                              prendersuiche();
+                              break;      
+                        case "rpath":
+                             removepath();
+                              break;
+                        case "apath":
+                              addarista();
+                              break;
+                  }
+            });               
+      }); 
+			function draw(){
+			 var image=new Image();
+			 image.src=
+			 'https://cdn2.cnet.com/img/Exato02iqY_YB9FKyKtWnkB-Jvw=/2013/12/13/be10d54f-67d7-11e3-a665-14feb5ca9861/maps-main.png';
+		     ctx.drawImage(image,0,0,1000,500);
+			  if(kk===false && ppp===false){
+			     dibujaristas();
+				 dibujavertices();
+			 }else{
+				 if(kk===false && ppp===true){
+					 dibujararistas2();
+					 dibujavertices();
+				 }else{//nunca las 2 pueden ser igual a true a la vez, por lo tanto esta significa kk=true
+					 dibujararistas3();
+					 dibujavertices();
+				 }
+			 } 
+			}
+		    var lastposx,uno,dos,ar=1,qar=1,unoo,doss,unarista=0,lastposy,este;
+			var vertices=[],kruskal=[],preached=[],punreached=[],aristas=[],aristas2=[],posibles=[],posibles2=[],primm=[],kreached=[];
+			var agg =false;
+			var dropx;
+			var dropy;
+			var suiche=false,addar=false,rar=false,pr=false,kk=false,ppp=false;
+			function prendersuiche(){
+				suiche=true;
+				alert("clickea sobre el nodo a eliminar");
+			}
+			function removepath(){
+				 if(vertices.length>1&&unarista===1){
+				        alert("presiona las dos estaciones involucradas");
+				        rar=true;
+				     }else{
+					   alert("No hay estaciones, agrega una presionando 'C' ");
+				     }
+			}
+			function removenod(){
+				var i=0,t=0;
+				var nn=0;
+				var r=[];
+					while(i<vertices.length){
+					  if(Math.sqrt(Math.pow(dropx-vertices[i].x,2)+Math.pow(dropy-vertices[i].y,2))<25){
+						   var nn=vertices[i].name;
+						   vertices.splice(i, 1);
+						 }
+				      i++;
+					}
+					i=0;
+				    if(nn!=0){
+						 while(i<aristas.length){
+							 if(nn===aristas[i].v1||nn===aristas[i].v2){
+								 aristas.splice(i,1);
+								 i--;
+							 }
+							 i++;
+							}
+						i=0;
+				     if(vertices.length>0){
+					  while(i<vertices.length){
+						  var tt=false;
+						   t=0;
+						  while(t<vertices[i].adyacentes.length&&tt===false){
+							 
+							  if(vertices[i].adyacentes[t].name===nn){
+								  vertices[i].adyacentes.splice(t,1);
+								  t=true;
+							    }
+								t++;
+						    }
+							
+							
+							i++;
+					    }
+				     }
+			        }
+			}
+			function change(){
+				
+			}
+			function limpiar() {
+                document.getElementById("mytextarea").value = " ";
+            }
+			function casiarista(v1,v2){//constructor para ayudar al error de unoprim
+				this.v1=v1;
+				this.v2=v2;
+			}
+			
+			function nodo(name,x,y,arrayy){//constructor de vertices.
+			    this.adyacentes=arrayy;
+				this.name=name;
+				this.x=x;
+				this.y=y;
+				this.pesorelativo;
+			}
+			function arista(peso,v1,v2){//constructor de aristas
+				this.peso=peso;
+				this.v1=v1;
+				this.v2=v2;
+			}
+			function dibujaristas(){
+				var i=0;
+				if(vertices.length>1){//deben haber por lo menos dos vertices para que haya una arista
+				while(i<vertices.length){
+					var t=0;
+					if(vertices[i].adyacentes.length>0){//para estar seguros que por lo menos tiene un enlace
+					while(t<vertices[i].adyacentes.length){
+						pintararistas(vertices[i].x,vertices[i].y,vertices[i].adyacentes[t].x,vertices[i].adyacentes[t].y,vertices[i].adyacentes[t].pesorelativo);
+						t++;
+					}
+					}
+					i++;
+				}
+				}
+			}
+			function dibujararistas2(){
+				var i=0,tt=0;
+				while(tt<primm.length){
+					if(vertices.length>1){//deben haber por lo menos dos vertices para que haya una arista
+					  i=0;
+				     while(i<vertices.length){
+					 var t=0;
+					 if(vertices[i].name===primm[tt].v1 ||vertices[i].name===primm[tt].v2 ){
+					       if(vertices[i].adyacentes.length>0){//para estar seguros que por lo menos tiene un enlace
+					           while(t<vertices[i].adyacentes.length){
+								  if(vertices[i].adyacentes[t].name===primm[tt].v1 ||vertices[i].adyacentes[t].name===primm[tt].v2 ){ 
+						             pintararistas(vertices[i].x,vertices[i].y,vertices[i].adyacentes[t].x,vertices[i].adyacentes[t].y,vertices[i].adyacentes[t].pesorelativo);
+								    }
+									t++;
+					            }
+					        }
+					    }
+					 i++;
+				    }
+				    }
+					tt++;
+				}
+			}
+			function dibujararistas3(){
+				var i=0,tt=0;
+				while(tt<kruskal.length){
+					if(vertices.length>1){//deben haber por lo menos dos vertices para que haya una arista
+					  i=0;
+				     while(i<vertices.length){
+					 var t=0;
+					 if(vertices[i].name===kruskal[tt].v1 ||vertices[i].name===kruskal[tt].v2 ){
+					       if(vertices[i].adyacentes.length>0){//para estar seguros que por lo menos tiene un enlace
+					           while(t<vertices[i].adyacentes.length){
+								  if(vertices[i].adyacentes[t].name===kruskal[tt].v1 ||vertices[i].adyacentes[t].name===kruskal[tt].v2 ){ 
+						             pintararistas(vertices[i].x,vertices[i].y,vertices[i].adyacentes[t].x,vertices[i].adyacentes[t].y,vertices[i].adyacentes[t].pesorelativo);
+								    }
+									t++;
+					            }
+					        }
+					    }
+					 i++;
+				    }
+				    }
+					tt++;
+				}
+			}
+			function dibujavertices(){
+				var i=0;
+				while(i<vertices.length){
+					dibujar(vertices[i].name,vertices[i].x,vertices[i].y);
+					i++;
+				}
+			}
+			function enviaraviso(){
+			   alert("mueve el mouse hacia el mapa y clickea donde quieres agregar la nueva estación");
+			   agg=true;
+			}
+			function pintararistas(x1,y1,x2,y2,peso){
+				ctx.beginPath();
+				ctx.moveTo(x1,y1);
+                ctx.lineTo(x2,y2);
+                ctx.stroke();
+				ctx.closePath();
+				ctx.fill();
+				ctx.beginPath();
+				ctx.font = "bold 16px sans-serif";
+			    ctx.fillText(peso,(x1+x2)/2,(y1+y2)/2);
+			    ctx.closePath();
+			}
+			function dibujar(name,x,y){
+			 ctx.fillStyle = "white";
+			 ctx.beginPath();
+			 ctx.font = "bold 10px sans-serif";
+			 ctx.arc(x,y,25,0,2*Math.PI);
+			 ctx.strokeStyle = "#1E90FF";
+			 ctx.lineWidth = 5;
+             ctx.closePath();
+			 ctx.fill();
+			 ctx.beginPath();
+			 ctx.fillStyle = "black";
+			 ctx.fillText(name,x-25,y);
+			 ctx.closePath();
+			 ctx.fill();
+			}
+			function movenode(evt){
+			  var mousePos=getMousePos(canvas,evt);
+			  if(agg===true){	
+				ctx.fillStyle = "white";
+			    ctx.beginPath();
+			    ctx.arc(mousePos.x,mousePos.y,25,0,2*Math.PI,true);
+                ctx.closePath();
+				ctx.fill();
+				lastposx=mousePos.x;
+				lastposy=mousePos.y;
+			  }
+			  if(suiche===true){
+				  dropx=mousePos.x;
+				  dropy=mousePos.y;
+			  }
+			  if(addar===true){
+				lastposx=mousePos.x;
+				lastposy=mousePos.y;
+			  }
+			   if(rar===true){
+				lastposx=mousePos.x;
+				lastposy=mousePos.y;
+			  }
+			  if(pr===true){
+				lastposx=mousePos.x;
+				lastposy=mousePos.y;
+			  }
+			}
+			function busim(n){
+				  for (var i = 0; i <vertices.length; i++) {
+                      if(n===vertices[i].name){
+						  return vertices[i];
+					  }
+                    }
+					return null;
+	            }
+				function noexistear(a1,a2){//devuelve falso cuando ya existe la arista
+					for (var i = 0; i <aristas.length; i++) {
+                      if((a1===aristas[i].v1 &&a2===aristas[i].v2) ||(a1===aristas[i].v2 &&a2===aristas[i].v1) ){
+						 return false;
+					  }
+                    }
+					return true;
+				}
+			function addvertice(){
+					if(agg === true){
+						if(validar(lastposx,lastposy)===true){
+						 var nombre;
+					     nombre=prompt('Ingrese el nombre de la nueva estación','');
+						 while(validarnombre(nombre)){
+							 nombre=prompt('Recuerda que el nombre es único por estación. Intenta de nuevo','');
+						 }
+						 var n2=nombre.trim();
+				         while(n2===""){
+							 nombre=prompt('Debe ingresar el nombre de la nueva estación!','');
+							 n2=nombre.trim();
+						    }
+						 var arrayy=[];
+						 var element=new nodo(nombre,lastposx,lastposy,arrayy);
+						 vertices.push(element);
+						 agg=false;
+					    }
+					}
+					if(suiche===true){
+				      suiche=false;
+					  removenod();
+			        }
+					if(addar===true&&ar===1){//aristas
+						 uno=encontrarinvolucrados();
+						 if(uno!=null){
+							 ar++;
+						    }
+					}else{
+					 if(addar===true&&ar===2){//agregar aristas
+					    dos=encontrarinvolucrados();
+						if(dos!=null){
+							
+						 if(noexistear(uno.name,dos.name)){
+						    while(dos.name===uno.name){
+					             var haf=prompt('No se pueden crear enlaces hacía una misma estación! Escriba el nombre de la segunda estación, la primera es: '+uno.name,'');
+							     dos=busim(haf);
+						        }
+						   addar=false;
+						   var p=prompt("Digite el costo de "+uno.name+" a "+dos.name);
+						   var arrayy=[];
+						   var jjj=new nodo(dos.name,dos.x,dos.y,arrayy);
+						   jjj.pesorelativo=p;
+						   var a=[];
+						   a=uno.adyacentes;
+						   a.push(jjj);
+						   uno.adyacentes=a;
+						   unarista=1;
+						   ar=1;
+						   var edge=new arista(p,uno.name,dos.name);
+						   aristas.push(edge);
+						  }else{
+							  ar=1;
+							  alert("ya hay un camino entre las dos estaciones indicadas.");
+						  }
+						}
+					 
+					 }		 
+			        }
+			        if(rar===true&&qar===1){//quitar arista
+					    unoo=encontrarinvolucrados();
+					    if(uno!=null){
+					     	 qar++;
+						    }
+					}else{
+						 if(rar===true&&qar===2){
+							 doss=encontrarinvolucrados();
+							 if(doss!=null){
+							    rar=false;
+								qar=1;
+								buscar(unoo,doss);
+							 }
+						 }
+				    }
+					if(pr===true){
+						este=encontrarinvolucrados();
+						pr=false;
+						prim();
+					}
+					
+			}
+			function encontrarinvolucrados(){
+				 i=0;
+				while(i<vertices.length){
+				   if(Math.sqrt(Math.pow(lastposx-vertices[i].x,2)+Math.pow(lastposy-vertices[i].y,2))<=50){
+				       return vertices[i];
+				    }
+				   i++;
+				}
+				return null;
+			}
+			function addarista(){
+				if(vertices.length>1){
+				   alert("presiona las dos estaciones involucradas");
+				   addar=true;
+				}else{
+				alert("No se puede agregar un camino ya que falta una estación");
+				}	
+			}
+			function buscar(uno,dos){
+				if(vertices.length>1){
+					 var i=0;
+				     while(i<vertices.length){  
+						 var t=0;
+						 if(vertices[i].name===uno.name){
+							 while(t<vertices[i].adyacentes.length){
+							     if(vertices[i].adyacentes[t].name===dos.name){
+								    vertices[i].adyacentes.splice(t,1);
+								 }
+								 t++;
+						        }
+						    }else{
+								t=0;
+							 if(vertices[i].name===dos.name){
+							  while(t<vertices[i].adyacentes.length){
+							     if(vertices[i].adyacentes[t].name===uno.name){
+								    vertices[i].adyacentes.splice(t,1);
+								 }
+								 t++;
+						        }
+						     }
+							}
+							i++;
+					    }
+				}
+			}
+			function validar(xx,yy){//verificar que no haya colisiones.
+			    i=0;
+				while(i<vertices.length){
+				   if(Math.sqrt(Math.pow(xx-vertices[i].x,2)+Math.pow(yy-vertices[i].y,2))<=50)
+					   return false;
+				   i++;
+				}
+				return true;
+			}
+			function validarnombre(n){
+				var i=0;
+				while(i<vertices.length){
+					if(vertices[i].name===n)
+						return true;
+					
+					i++;	
+				}
+				return false;
+			}
+			function krus(){ 
+			if(vertices.length>1&&unarista===1){
+			    var b1=false,b2=false;
+				migracion2();
+				while(kruskal.length<vertices.length-1){
+				var c=escogermenor2();
+					if(cyclo(c)){
+						kruskal.push(c);
+						if(ver2(c.v1)){
+							ver2(c.v2);
+						}
+					}
+				}
+				pintarkruskal();		
+				    pr=true;
+				}else{
+					alert("no se cumplen las condiciones minimas para aplicar kruskal!");
+				}
+			    
+			}
+			function pintarkruskal(){
+				kk=true;
+			}
+			function migracion2(){//funciona
+				var t=0;
+				var a;
+				while(t<aristas.length){
+				    a=new arista(aristas[t].peso,aristas[t].v1,aristas[t].v2);
+					posibles2.push(a);
+					t++;
+				}
+			}
+			function escogermenor2(){//funciona
+				var i=0,menor,o;
+				var e,e2;
+				if(posibles2.length>0){
+						menor=999999;
+				  while(i<posibles2.length){
+						if(menor>posibles2[i].peso){
+							menor=posibles2[i].peso;
+							e=posibles2[i];
+							o=i;
+						}
+					 i++;
+				    }
+					posibles2.splice(o,1);
+					e2=new arista(e.peso,e.v1,e.v2);
+					if(kreached.length===0){
+						kreached.push(e.v1);
+					}
+					return e2;
+				} 
+				}
+			function cyclo(aris){//funciona
+				var n1,n2;
+				n1=aris.v1;
+				n2=aris.v2;
+				var i=0,cont=0;
+				if(kreached.length>0){
+				 while(i<kreached.length){
+					if(n1===kreached[i] || n2===kreached[i]){
+						cont++;
+					}
+					i++;
+				 }
+				 if(cont===2){
+					 return false;
+				 }
+				 return true;
+				}
+				 }
+				 function ver2(nn){
+				var i=0;
+				var b=false;
+				while(i<kreached.length){
+					if(kreached[i]===nn)
+						 return true;
+					
+					i++;
+				}
+				if(b===false){
+					kreached.push(nn);
+					return false;
+				}
+			}
+			function suicheprim(){
+				var c=conexo();
+				if(vertices.length>1&&unarista===1){
+					alert("Haz click sobre el vertice inicial");			
+				    pr=true;
+				}else{
+					alert("no se cumplen las condiciones minimas para aplicar prim!");
+				}
+			}
+			function prim(){//EL PROBLEMA RADICA EN QUE CUANDO SE HACE PRIM LA PRIMERA VEZ, SI DESPUES SE LE AGREGA MÁS VERTICES NO TOMA NINGUN CAMINO QUE LLEVE A ESE VERTICE.
+				primm=[];
+				migracion();
+				var b1=false,b2=false;
+				unoprim(este.name);//agrega las nuevas aristas posibles y elimina las aristas que ya están en posibles de aristas2.
+				preached.push(este.name);//agregar el vertice inicial a los visitados
+				while(primm.length<vertices.length-1){
+					 var c=escogermenor();
+					 if(cycle(c)){//si c no forma ciclo
+					     primm.push(c);
+					     b1=ver(c.v1);
+					     b2=ver(c.v2);
+					     if(b1===false){
+						     unoprim(c.v1);
+					        }else{
+						     unoprim(c.v2);
+					        }
+				        }	 
+				}
+				aristas2=[];
+				punreached=[];
+				pintarprim();
+                preached=[];				
+			}
+			function pintarprim(){
+				ppp=true;
+			}
+			function migracion(){//funciona
+				var t=0;
+				var a;
+				while(t<aristas.length){
+				    a=new arista(aristas[t].peso,aristas[t].v1,aristas[t].v2);
+					aristas2.push(a);
+					t++;
+				}
+			}
+			function inteligencia(){//para pasar de aristas2 a punreached
+				var i=0;
+				var c;
+				punreached=[];
+				while(i<aristas2.length){
+					c=new arista(aristas2[i].peso,aristas2[i].v1,aristas2[i].v2);
+					punreached.push(c);
+				    i++;
+				}
+			}
+			function inteligencia2(){//lo contrario a inteligencia
+				var i=0;
+				var c;
+		    	aristas2=[];
+				while(i<punreached.length){
+					c=new arista(punreached[i].peso,punreached[i].v1,punreached[i].v2);
+					aristas2.push(c);
+				    i++;
+				}
+			}
+			function unoprim(init){//agrega a posibles y saca de donde están todas las aristas
+				var i=0;
+				var vv=[];
+				var nueva;
+				if(aristas2.length>0){
+					inteligencia();
+					while(i<punreached.length){
+					   if(punreached[i].v1===init || punreached[i].v2===init){
+						   posibles.push(punreached[i]);
+						   nueva=new casiarista(punreached[i].v1,punreached[i].v2);
+						   vv.push(nueva);
+					   }
+					   i++;
+				    }
+					var p=0,tt,m;
+					while(p<vv.length){
+						tt=0;
+						m=punreached.length;
+						while(tt<m){
+							if(punreached[tt].v1===vv[p].v1 && punreached[tt].v1===vv[p].v2){
+								punreached.splice(tt,1);
+							}
+							tt++;
+						}
+						p++;
+					}
+					inteligencia2();
+				}
+				vv=[];
+			}
+            function escogermenor(){//escoge el menor de los posibles vertices(aristas) que se pueden añadir, al final ese menor se saca de posibles.
+				var i=0,menor,o;
+				var e,e2;
+				if(posibles.length>0){
+						menor=9999999;
+				  while(i<posibles.length){
+						if(menor>posibles[i].peso){
+							menor=posibles[i].peso;
+							e=posibles[i];
+							o=i;
+						}
+					 i++;
+				    }
+					posibles.splice(o,1);
+					e2=new arista(e.peso,e.v1,e.v2);
+					return e2;
+				} 
+				}
+			function cycle(aris){//funciona bien
+				var n1,n2;
+				n1=aris.v1;
+				n2=aris.v2;
+				var i=0,cont=0;
+				if(preached.length>0){
+				 while(i<preached.length){
+					if(n1===preached[i] || n2===preached[i]){
+						cont++;
+					}
+					i++;
+				 }
+				 if(cont===2){
+					 return false;
+				 }
+				 return true;
+				}
+				 }
+			function ver(nn){// agrega el vertice faltante, de la arista que se acaba de agregar, a los visitados, retorna falso si fue el nuevo que se añadió
+				var i=0;
+				var b=false;
+				while(i<preached.length){
+					if(preached[i]===nn)
+						 return true;
+					
+					i++;
+				}
+				if(b===false){
+					preached.push(nn);
+					return false;
+				}
+			}
+			function conexo(){//retorna falso si no es conexo
+				 var i=0,ii;
+				while(i<vertices.length){
+					var n=vertices[i].name;
+					ii=0;
+					var b=false;
+					while(ii<aristas.length){
+						if(n===aristas[ii].v1 || n===aristas[ii].v2){
+							b=true;
+						}
+						ii++;
+					}
+					if(b===false){
+						return false;
+					}
+					i++;
+				}
+				return true;
+			 
+			}
+			
+			function tablecer(){
+				ppp=false;
+				kk=false;
+			}
+            function getMousePos(canvas, evt){
+				return{
+					x:evt.clientX,
+					y:evt.clientY
+				}
+			}	
+			 function animate(){
+				 window.setTimeout(animate,1);	
+				 draw(); 
+			 }
+			animate();
+			document.getElementById("mover2").addEventListener("click",enviaraviso);
+			document.getElementById("kruskall").addEventListener("click",krus);
+			document.getElementById("prim").addEventListener("click",suicheprim);
+			document.getElementById("clean").addEventListener("click",limpiar);
+			canvas.addEventListener("mousemove",movenode);
+			canvas.addEventListener("mousedown",addvertice);
+			document.getElementById("re").addEventListener("click",tablecer);
+	    }
+	  </script>
+ </body>
+</html>
